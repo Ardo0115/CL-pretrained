@@ -94,6 +94,39 @@ class CIFAR100(Dataset):
         self.test_labels = np.array(test_dataset.targets)
         self.loader = None
 
+class CIFAR100_for_Resnet(Dataset):
+    def __init__(self):
+        super().__init__(100, "CIFAR100_for_Resnet", args)
+
+        mean = [0.5071, 0.4867, 0.4408]
+        std = [0.2675, 0.2565, 0.2761]
+
+        self.task_info = []
+        for t in range(self.tasknum):
+            self.task_info.append((t, self.classes // self.tasknum))
+        # ex. task_info : [(0,50), (1,10), (2,10), (3,10), (4,10), (5,10)]
+
+        self.train_transform = transforms.Compose([
+            transforms.Resize(224, interpolation=2),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std),
+        ])
+
+        self.test_transform = transforms.Compose([
+            transforms.Resize(224, interpolation=2),
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std),
+            ])
+
+        train_dataset = datasets.CIFAR100("dat", train=True, transform=self.train_transform, download=True)
+        self.train_data = train_dataset.data
+        self.train_labels = np.array(train_dataset.targets)
+        test_dataset = datasets.CIFAR100("dat", train=False, transform=self.test_transform, download=True)
+        self.test_data = test_dataset.data
+        self.test_labels = np.array(test_dataset.targets)
+        self.loader = None
+
 class MNIST(Dataset):
     def __init__(self):
         super().__init__(10, "MNIST", args.tasknum)

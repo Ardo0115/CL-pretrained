@@ -22,11 +22,11 @@ def main():
 
     #########################################################################################################################
 
-    log_name = '{}_{}_{}_{}_knowledge_{}_lamb_{}_lr_{}_batch_{}_epoch_{}'.format(args.date, args.dataset, args.trainer, args.seed, args.knowledge_ratio,
-                                                                           args.lamb, args.lr, args.batch_size, args.nepochs)
+    log_name = '{}_{}_{}_{}_{}_{}_lr_{}_batch_{}_epoch_{}'.format(args.date, args.dataset, args.trainer, args.model, args.optimizer, args.seed,
+                                                                           args.lr, args.batch_size, args.nepochs)
 
     if args.output == '':
-        args.output = './result_data_mas_normalize/' + log_name + '.txt'
+        args.output = './result_data/' + log_name + '.txt'
     ########################################################################################################################
     # Seed
     np.random.seed(args.seed)
@@ -81,12 +81,13 @@ def main():
                                                           )
 
     # Get the required model
-    myModel = networks.ModelFactory.get_model(args.dataset, args.trainer, task_info).to(device)
+    myModel = networks.ModelFactory.get_model(args.model, task_info).to(device)
 
     # Define the optimizer used in the experiment
-
-    optimizer = torch.optim.Adam(myModel.parameters(), lr=args.lr, weight_decay=args.decay)
-
+    if args.optimizer == 'Adam':
+        optimizer = torch.optim.Adam(myModel.parameters(), lr=args.lr, weight_decay=args.decay)
+    elif args.optimizer == 'SGD':
+        optimizer = torch.optim.SGD(myModel.parameters(), lr=args.lr, weight_decay = args.decay)
     # Initilize the evaluators used to measure the performance of the system.
     t_classifier = trainer.EvaluatorFactory.get_evaluator("trainedClassifier")
 
@@ -125,9 +126,9 @@ def main():
 
         print('Save at ' + args.output)
         np.savetxt(args.output, acc, '%.4f')
-        if t==0:
-            if args.lamb == 0.0 and args.lr == 0.001:
-                torch.save(myModel.state_dict(), './trained_model/' + log_name + '_task_{}.pt'.format(t))
+        # if t==0:
+        #     if args.lamb == 0.0 and args.lr == 0.001:
+        #         torch.save(myModel.state_dict(), './trained_model/' + log_name + '_task_{}.pt'.format(t))
 
 
     print('*' * 100)

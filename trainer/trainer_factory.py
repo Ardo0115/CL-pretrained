@@ -12,66 +12,10 @@ class TrainerFactory():
     @staticmethod
     def get_trainer(myModel, args, optimizer, evaluator, task_info):
 
-        if args.trainer == 'ewc' or args.trainer == 'ewc_pooling' or args.trainer=='ewc_wo_fc' or args.trainer=='ewc_resnet34' or args.trainer=='ewc_resnet18_Adam' or args.trainer=='ewc_vgg16':
+        if args.trainer == 'ewc':
             import trainer.ewc as trainer
-        elif args.trainer == 'mas_resnet18_Adam':
-            import trainer.mas as trainer
-        elif args.trainer == 'ewc_resnet18_Adam_remember_pretrain':
-            import trainer.ewc_remember_pretrain as trainer
-        elif args.trainer == 'mas_resnet18_Adam_remember_pretrain':
-            import trainer.mas_remember_pretrain as trainer
-        elif args.trainer == 'ewc_resnet18_Adam_fixed_bn':
-            import trainer.ewc_fixed_bn as trainer
-        elif args.trainer == 'ewc_resnet34_SGD' or args.trainer == 'ewc_resnet18_SGD':
-            import trainer.ewc_SGD as trainer
-        elif args.trainer == 'ewc_w_film_resnet':
-            import trainer.ewc_w_film_resnet as trainer
-        elif args.trainer == 'vanilla':
-            import trainer.vanilla as trainer
-        elif args.trainer == 'l2':
-            import trainer.l2 as trainer
-        elif args.trainer == 'vanilla_new_grad':
-            import trainer.vanilla_new_grad as trainer
-        elif args.trainer == 'film' or args.trainer == 'film_last' or args.trainer == 'film_pooling' or args.trainer== 'film_wo_fc':
-            import trainer.film as trainer
-        elif args.trainer == 'film_w_conv':
-            import trainer.film_w_conv as trainer
-        elif args.trainer == 'film_diag' or args.trainer == 'film_diag_pooling':
-            import trainer.film_diag as trainer
-        elif args.trainer == 'film_indep_pooling' or args.trainer == 'film_indep':
-            import trainer.film_indep as trainer
-        elif args.trainer == 'film_remember' or args.trainer == 'film_remember_wo_batchnorm':
-            import trainer.film_remember as trainer
-        elif args.trainer == 'film_freeze_last':
-            import trainer.film_freeze_last as trainer
-        elif args.trainer == 'film_remember_freeze' or args.trainer == 'film_remember_freeze_wo_batchnorm':
-            import trainer.film_remember_freeze as trainer
-        elif args.trainer == 'film_w_conv_all':
-            import trainer.film_w_conv_all as trainer
-        elif args.trainer == 'film_resnet34_SGD' or args.trainer == 'film_resnet18_SGD':
-            import trainer.film_resnet_SGD as trainer
-        elif args.trainer == 'film_resnet34_Adam' or args.trainer == 'film_resnet18_Adam':
-            import trainer.film_resnet_Adam as trainer
-        elif args.trainer == 'film_diag_resnet18_SGD':
-            import trainer.film_diag_resnet_SGD as trainer
-        elif args.trainer == 'film_diag_resnet18_Adam':
-            import trainer.film_diag_resnet_Adam as trainer
-        elif args.trainer == 'film_resnet18_Adam_indep':
-            import trainer.film_resnet_Adam_indep as trainer
-        elif args.trainer == 'film_resnet18_SGD_indep':
-            import trainer.film_resnet_SGD_indep as trainer
-        elif args.trainer == 'film_w_conv_all_resnet':
-            import trainer.film_w_conv_all_resnet as trainer
-        elif args.trainer == 'piggyback_resnet18' or args.trainer == 'piggyback_vgg16':
-            import trainer.piggyback as trainer
-        elif args.trainer == 'film_vgg16':
-            import trainer.film_vgg16 as trainer
-        elif args.trainer == 'film_indep_vgg16':
-            import trainer.film_indep_vgg16 as trainer
-        elif args.trainer == 'film_diag_vgg16':
-            import trainer.film_diag_vgg16 as trainer
-        elif args.trainer == 'only_train_last_resnet18_Adam':
-            import trainer.only_train_last as trainer
+        elif args.trainer == 'interpolate_pretrain':
+            import trainer.interpolate_pretrain as trainer
         else:
             print("Not available trainer")
             sys.exit()

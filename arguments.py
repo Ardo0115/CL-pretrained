@@ -1,4 +1,5 @@
 import argparse
+from re import M
 
 
 def get_args():
@@ -22,12 +23,18 @@ def get_args():
     parser.add_argument('--date', type=str, default='', help='(default=%(default)s)')
     parser.add_argument('--output', default='', type=str, required=False, help='(default=%(default)s)')
     parser.add_argument('--dataset', default='CIFAR100', type=str,
-                        choices=['CIFAR100', 'MNIST', 'CIFAR10'],
+                        choices=['CIFAR100', 'MNIST', 'CIFAR10', 'CIFAR100_for_Resnet'],
                         help='(default=%(default)s)')
 
     parser.add_argument('--trainer', default='ewc', type=str,
-                        choices=['ewc', 'ewc_pooling','ewc_wo_fc',  'l2', 'vanilla', 'vanilla_new_grad', 'film', 'film_last', 'film_pooling', 'film_wo_fc', 'film_w_conv', 'film_diag','film_diag_pooling', 'film_indep_pooling','film_indep', 'film_remember', 'film_freeze_last', 'film_remember_freeze', 'film_w_conv_all', 'ewc_resnet34', 'ewc_resnet34_SGD', 'film_resnet34_SGD', 'film_resnet34_Adam', 'ewc_resnet18_Adam', 'ewc_resnet18_SGD', 'film_resnet18_SGD', 'film_resnet18_Adam', 'film_diag_resnet18_SGD','film_diag_resnet18_Adam', 'film_remember_wo_batchnorm', 'film_remember_freeze_wo_batchnorm','film_resnet18_Adam_indep', 'film_resnet18_SGD_indep', 'film_w_conv_all_resnet', 'ewc_w_film_resnet', 'piggyback_resnet18', 'ewc_vgg16', 'film_vgg16', 'film_indep_vgg16', 'film_diag_vgg16', 'piggyback_vgg16', 'only_train_last_resnet18_Adam', 'ewc_resnet18_Adam_remember_pretrain', 'ewc_resnet18_Adam_fixed_bn', 'mas_resnet18_Adam', 'mas_resnet18_Adam_remember_pretrain'],
+                        choices=['ewc','interpolate_pretrain'],
                         help='(default=%(default)s)')
+    parser.add_argument('--model', default='resnet18',type=str,
+                        choices=['resnet18','MLP'],
+                        help='Model to use')
+    parser.add_argument('--optimizer', default='Adam', type=str,
+                        choices=['Adam','SGD'],
+                        help='Optimizer to use')
     parser.add_argument('--grad-tilt', default='0.0', type=float,
                         help='Choose how much to tilt the gradient from [0.0, 10.0], 0.0:no tilting, 10.0:orthogonal')
     parser.add_argument('--knowledge-ratio', default='1.0', type=float,

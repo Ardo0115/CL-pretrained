@@ -13,3 +13,5 @@ class DatasetFactory:
             return data.CIFAR10()
         elif name == 'MNIST':
             return data.MNIST()
+        elif name == "CIFAR100_for_Resnet":
+            return data.CIFAR100_for_Resnet()
