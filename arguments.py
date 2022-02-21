@@ -10,7 +10,7 @@ def get_args():
     parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
                         help='learning rate (default: 0.1. Note that lr is decayed by args.gamma parameter args.schedule ')
     parser.add_argument('--decay', type=float, default=0, help='Weight decay (L2 penalty).')
-    parser.add_argument('--lamb', type=float, default=1, help='Lambda for ewc')
+    parser.add_argument('--lamb', type=float, default=0, help='Lambda for ewc')
     parser.add_argument('--lamb2', type=float, default=0, help='Lambda for film_w_conv')
     parser.add_argument('--schedule', type=int, nargs='+', default=[20, 40],
                         help='Decrease learning rate at these epochs.')

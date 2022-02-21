@@ -22,8 +22,8 @@ def main():
 
     #########################################################################################################################
 
-    log_name = '{}_{}_{}_{}_{}_{}_lr_{}_batch_{}_epoch_{}'.format(args.date, args.dataset, args.trainer, args.model, args.optimizer, args.seed,
-                                                                           args.lr, args.batch_size, args.nepochs)
+    log_name = '{}_{}_{}_{}_{}_{}_lamb_{}_lr_{}_batch_{}_epoch_{}'.format(args.date, args.dataset, args.trainer, args.model, args.optimizer, args.seed,
+                                                                           args.lamb, args.lr, args.batch_size, args.nepochs)
 
     if args.output == '':
         args.output = './result_data/' + log_name + '.txt'

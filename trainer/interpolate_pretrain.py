@@ -48,7 +48,7 @@ class Trainer(trainer.GenericTrainer):
         if self.args.optimizer == 'Adam':
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.current_lr)
         elif self.args.optimizer == 'SGD':
-            self.optimzer = torch.optim.SGD(self.model.paramters(), lr=self.current_lr)
+            self.optimzer = torch.optim.SGD(self.model.parameters(), lr=self.current_lr)
         # Now, you can update self.t
         self.t = t
 
