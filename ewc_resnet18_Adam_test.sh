@@ -1,4 +1,4 @@
-lamb="1"
+lamb="1000"
 lamb_limit="10000000"
 lamb_increment="10"
 
