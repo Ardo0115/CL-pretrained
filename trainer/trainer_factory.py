@@ -16,6 +16,12 @@ class TrainerFactory():
             import trainer.ewc as trainer
         elif args.trainer == 'interpolate_pretrain':
             import trainer.interpolate_pretrain as trainer
+        elif args.trainer == 'interpolate_random':
+            import trainer.interpolate_random as trainer
+        elif args.trainer == 'interpolate_pretrain_fix_var':
+            import trainer.interpolate_pretrain_fix_var as trainer
+        elif args.trainer == 'vanilla_basin_constraint':
+            import trainer.vanilla_basin_constraint as trainer
         else:
             print("Not available trainer")
             sys.exit()

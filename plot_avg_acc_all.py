@@ -92,10 +92,17 @@ def main():
             #    trainer = 'film_diag_resnet18_SGD'
             #if 'CIFAR100' in filename and 'knowledge' in filename and 'epoch_60' in filename and 'remember' not in filename:
             #    trainer = 'mas'
-            if 'CIFAR100' in filename and 'knowledge_0.1' in filename and 'epoch_60' in filename and 'remember' not in filename:
-                trainer = 'knowledge_0.1'
-            elif 'CIFAR100' in filename and 'knowledge_1.0' in filename and 'epoch_60' in filename and 'remember' not in filename:
-                trainer = 'knowledge_0.2'
+            if 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'ewc' in filename:
+                trainer = 'ewc_Adam'
+            elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'ewc' in filename:
+                trainer = 'ewc_SGD'
+            # elif 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'interpolate_pretrain' in filename:
+            #     trainer = 'interpolate_pretrain_Adam'
+            elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'interpolate_pretrain' in filename:
+                trainer = 'interpolate_pretrain_SGD'
+            # elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename:
+            #     trainer = filename
+           
             
             # elif 'CIFAR100' in filename and 'knowledge_0.9' in filename and 'epoch_60' in filename:
             #     trainer = filename

@@ -27,7 +27,7 @@ def get_args():
                         help='(default=%(default)s)')
 
     parser.add_argument('--trainer', default='ewc', type=str,
-                        choices=['ewc','interpolate_pretrain'],
+                        choices=['ewc','interpolate_pretrain', 'interpolate_random', 'interpolate_pretrain_fix_var', 'vanilla_basin_constraint'],
                         help='(default=%(default)s)')
     parser.add_argument('--model', default='resnet18',type=str,
                         choices=['resnet18','MLP'],
