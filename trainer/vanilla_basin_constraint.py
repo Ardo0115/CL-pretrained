@@ -32,8 +32,26 @@ class Trainer(trainer.GenericTrainer):
         self.setup_training(lr)
         # Do not update self.t
         if t==0:
-            model1 = self.train_from(None, train_loader, test_loader, t, from_pretrained = True)
+            #model1 = self.train_from(None, train_loader, test_loader, t, from_pretrained = True)
+            model1 = torchvision.models.resnet18(pretrained=False)
+            num_ftrs = model1.fc.in_features
+            model1.fc = nn.Linear(num_ftrs, self.task_info[0][1])
+            model1.to(device)
+            model1.load_state_dict(torch.load('./trained_model/_CIFAR100_for_Resnet_from_pretraind_SGD_0_lamb_1.0_lr_0.1_batch_256_epoch_100_task_0.pt'))
+            test_iterator = torch.utils.data.DataLoader(test_loader, 100, shuffle=False)
+            test_loss,test_acc=self.evaluator.one_task_evaluate(model1, test_iterator, self.device)
+            print('From_pretrained MODEL Test: loss={:.3f}, acc={:5.1f}% |'.format(test_loss,100*test_acc),end='')
+            print()
             model2 = self.train_from(model1, train_loader, test_loader, t, from_pretrained = False)
+            #model2 = torchvision.models.resnet18(pretrained=False)
+            #num_ftrs = model1.fc.in_features
+            #model2.fc = nn.Linear(num_ftrs, self.task_info[0][1])
+            #model2.to(device)
+            #model2.load_state_dict(torch.load('./trained_model/_CIFAR100_for_Resnet_from_model1_SGD_0_lamb_1.0_lr_0.1_batch_256_epoch_100_task_0.pt'))
+            test_iterator = torch.utils.data.DataLoader(test_loader, 100, shuffle=False)
+            test_loss,test_acc=self.evaluator.one_task_evaluate(model2, test_iterator, self.device)
+            print('From_model1 MODEL Test: loss={:.3f}, acc={:5.1f}% |'.format(test_loss,100*test_acc),end='')
+            print()
             self.set_model_to_middle(model1, model2)
             self.set_radius(model1, model2)
             test_iterator = torch.utils.data.DataLoader(test_loader, 100, shuffle=False)
@@ -49,7 +67,7 @@ class Trainer(trainer.GenericTrainer):
         if self.args.optimizer == 'Adam':
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.current_lr)
         elif self.args.optimizer == 'SGD':
-            self.optimzer = torch.optim.SGD(self.model.parameters(), lr=self.current_lr)
+            self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.current_lr)
         
         # Now, you can update self.t
         self.t = t
@@ -81,6 +99,10 @@ class Trainer(trainer.GenericTrainer):
             test_loss,test_acc=self.evaluator.evaluate(self.model, self.test_iterator, t, self.device)
             print(' Test: loss={:.3f}, acc={:5.1f}% |'.format(test_loss,100*test_acc),end='')
             print()
+        save_pt_name = 'from_pretraind'
+        log_name = '_{}_{}_{}_{}_{}_lamb_{}_lr_{}_batch_{}_epoch_{}'.format(self.args.dataset,self.args.trainer,  save_pt_name, self.args.optimizer, self.args.seed,
+                                                                           self.args.lamb, self.args.lr, self.args.batch_size, self.args.nepochs)
+        torch.save(self.model.state_dict(), './trained_model/' + log_name + '_task_{}.pt'.format(t))
         self.constrain_to_basin()
 
     def criterion(self,output,targets):
@@ -112,7 +134,7 @@ class Trainer(trainer.GenericTrainer):
         if self.args.optimizer == 'Adam':
             self.optimizer = torch.optim.Adam(model_to_train.parameters(), lr=self.current_lr)
         elif self.args.optimizer == 'SGD':
-            self.optimzer = torch.optim.SGD(model_to_train.parameters(), lr=self.current_lr)
+            self.optimizer = torch.optim.SGD(model_to_train.parameters(), lr=self.current_lr)
 
         for epoch in range(self.args.nepochs):
             model_to_train.train()
@@ -124,32 +146,36 @@ class Trainer(trainer.GenericTrainer):
 
                 output = model_to_train(data)
                 loss_CE = self.criterion(output,target)
+                loss_CE_item = loss_CE.item()
                 if not from_pretrained:
                     distance_from_from_model = self.compute_distance(model_to_train, from_model)
-                    loss_CE -= self.lamb * distance_from_from_model
+                    distance_item = distance_from_from_model.item()
+                    loss_CE = loss_CE - (self.lamb * distance_from_from_model)
 
-
+                
 
 
                 self.optimizer.zero_grad()
                 (loss_CE).backward()
                 self.optimizer.step()
         
-            # train_loss,train_acc = self.evaluator.evaluate(model_to_train, train_iterator, t, self.device)
-            # num_batch = len(self.train_iterator)
-            # print('| Epoch {:3d} | Train: loss={:.3f}, acc={:5.1f}% |'.format(epoch+1,train_loss,100*train_acc),end='')
-            # test_loss,test_acc=self.evaluator.evaluate(model_to_train, test_iterator, t, self.device)
-            # print(' Test: loss={:.3f}, acc={:5.1f}% |'.format(test_loss,100*test_acc),end='')
-            # print()
+            if not from_pretrained:
+                print(" loss_CE : {} , distance : {} , loss_CE / distance : {}".format(loss_CE_item, distance_item, loss_CE_item / (distance_item+1e-6)))
+            train_loss,train_acc = self.evaluator.one_task_evaluate(model_to_train, train_iterator, self.device)
+            #num_batch = len(self.train_iterator)
+            print('| Epoch {:3d} | Train: loss={:.3f}, acc={:5.1f}% |'.format(epoch+1,train_loss,100*train_acc),end='')
+            test_loss,test_acc=self.evaluator.one_task_evaluate(model_to_train, test_iterator, self.device)
+            print(' Test: loss={:.3f}, acc={:5.1f}% |'.format(test_loss,100*test_acc),end='')
+            print()
         save_pt_name = 'from_pretraind' if from_pretrained else 'from_model1'
-        log_name = '_{}_{}_{}_{}_lamb_{}_lr_{}_batch_{}_epoch_{}'.format(self.args.dataset, save_pt_name, self.args.optimizer, self.args.seed,
+        log_name = '_{}_{}_{}_{}_{}_lamb_{}_lr_{}_batch_{}_epoch_{}'.format(self.args.dataset,self.args.trainer,  save_pt_name, self.args.optimizer, self.args.seed,
                                                                            self.args.lamb, self.args.lr, self.args.batch_size, self.args.nepochs)
         torch.save(model_to_train.state_dict(), './trained_model/' + log_name + '_task_{}.pt'.format(t))
         return model_to_train
 
     def set_model_to_middle(self, model1, model2):
         for my_module, module1, module2 in zip(self.model.modules(), model1.modules(), model2.modules()):
-            if 'Conv' in str(type(my_module)) or 'Linear' in str(type(my_module)):
+            if 'Conv' in str(type(my_module)):
                 my_module.weight.data = (module1.weight.data + module2.weight.data) / 2.0
                 if my_module.bias is not None: 
                     my_module.bias.data = (module1.bias.data + module2.bias.data) / 2.0
@@ -158,18 +184,16 @@ class Trainer(trainer.GenericTrainer):
                 my_module.bias.data = (module1.bias.data + module2.bias.data) / 2.0
                 my_module.running_mean = (module1.running_mean + module2.running_mean) / 2.0
                 my_module.running_var = (module1.running_var + module2.running_var) / 2.0
+        self.model.last[0].weight.data = (model1.fc.weight.data + model2.fc.weight.data) / 2.0
+        self.model.last[0].bias.data = (model1.fc.bias.data + model2.fc.bias.data) / 2.0
 
         self.center = copy.deepcopy(self.model)
     
     def set_radius(self, model1, model2):
-        norm_square_sum = 0
-        for param1, param2 in zip(model1.parameters(), model2.parameters()):
-            norm_square_sum += torch.norm(param1-param2)**2
-        
-        self.radius = torch.sqrt(norm_square_sum).item() / 2.0
+        self.radius = self.compute_distance(model1, model2).item() / 2.0
 
     def constrain_to_basin(self):
-        distance_from_center = self.compute_distance(self.model, self.center)
+        distance_from_center = self.compute_distance(self.model, self.center).item()
         if distance_from_center > self.radius:
             print("\nOut of Basin!! Apply Constrain!!\n")
             ratio = distance_from_center / self.radius
@@ -181,15 +205,27 @@ class Trainer(trainer.GenericTrainer):
                 elif 'BatchNorm' in str(type(module)):
                     module.weight.data = ratio * module.weight.data + (1-ratio) * center_module.weight.data
                     module.bias.data = ratio * module.bias.data + (1-ratio) * center_module.bias.data
-                    module.running_mean = ratio * module.running_mean + (1-ratio) * center_module.running_mean
-                    module.running_var = (ratio**2) * module.running_var + ((1-ratio)**2) * center_module.running_var
+                    module.running_mean.data = ratio * module.running_mean.data + (1-ratio) * center_module.running_mean.data
+                    module.running_var.data = ratio * module.running_var.data + (1-ratio) * center_module.running_var.data
                 
     def compute_distance(self, model1, model2):
-        distance_square = 0
-        for p1, p2 in zip(model1.parameters(), model2.parameters()):
-            distance_square += torch.norm(p1-p2)**2
+        norm_square_sum = 0
+        #for module1, module2 in zip(model1.modules(), model2.modules()):
+        #    if 'Conv' in str(type(module1)):
+        #        norm_square_sum += torch.norm(module1.weight.data-module2.weight.data)**2
+        #        if module1.bias is not None: 
+        #            norm_square_sum += torch.norm(module1.bias.data-module2.bias.data)**2
+        #    elif 'BatchNorm' in str(type(module1)):
+        #        norm_square_sum += torch.norm(module1.weight.data - module2.weight.data)**2
+        #        norm_square_sum += torch.norm(module1.bias.data - module2.bias.data)**2
+        #        norm_square_sum += torch.norm(module1.running_mean - module2.running_mean)**2
+        #        norm_square_sum += torch.norm(module1.running_var - module2.running_var)**2
+        for (n1,p1), (n2, p2) in zip(model1.named_parameters(), model2.named_parameters()):
+            if 'fc' in n1 or 'last' in n1:
+                continue
+            norm_square_sum += torch.norm(p1-p2)**2
         
-        return torch.sqrt(distance_square).item()
+        return torch.sqrt(norm_square_sum)
         # param_center_flatten = torch.Tensor().to(self.device)
         # param_new_flatten = torch.Tensor().to(self.device)
         # for param_center, param_new in zip(self.center.paramters(), self.model.paramters()):
