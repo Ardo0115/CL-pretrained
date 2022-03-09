@@ -22,6 +22,10 @@ class TrainerFactory():
             import trainer.interpolate_pretrain_fix_var as trainer
         elif args.trainer == 'vanilla_basin_constraint':
             import trainer.vanilla_basin_constraint as trainer
+        elif args.trainer == 'vanilla_basin_immediate_constraint':
+            import trainer.vanilla_basin_immediate_constraint as trainer
+        elif args.trainer == 'vanilla_middle_from_center':
+            import trainer.vanilla_middle_from_center as trainer
         else:
             print("Not available trainer")
             sys.exit()

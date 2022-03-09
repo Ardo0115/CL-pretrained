@@ -62,9 +62,11 @@ class Trainer(trainer.GenericTrainer):
             return
         elif t==1:
             self.update_frozen_model()
+            self.t = t
             self.train_iterator = torch.utils.data.DataLoader(train_loader, batch_size=self.args.batch_size, shuffle=True)
             self.test_iterator = torch.utils.data.DataLoader(test_loader, 100, shuffle=False)
             self.model.load_state_dict(torch.load('./trained_model/_CIFAR100_for_Resnet_vanilla_basin_constraint_from_pretraind_SGD_0_lamb_{}_lr_0.1_batch_256_epoch_100_task_1.pt'.format(self.args.lamb)))
+            self.set_model_to_middle_from_center()
             train_loss,train_acc = self.evaluator.evaluate(self.model, self.train_iterator, t, self.device)
             num_batch = len(self.train_iterator)
             #print('| Epoch {:3d} | Train: loss={:.3f}, acc={:5.1f}% |'.format(epoch+1,train_loss,100*train_acc),end='')
@@ -116,7 +118,8 @@ class Trainer(trainer.GenericTrainer):
         log_name = '_{}_{}_{}_{}_{}_lamb_{}_lr_{}_batch_{}_epoch_{}'.format(self.args.dataset,self.args.trainer,  save_pt_name, self.args.optimizer, self.args.seed,
                                                                            self.args.lamb, self.args.lr, self.args.batch_size, self.args.nepochs)
         torch.save(self.model.state_dict(), './trained_model/' + log_name + '_task_{}.pt'.format(t))
-        self.constrain_to_basin()
+        #self.constrain_to_basin()
+        self.set_model_to_middle_from_center()
 
     def criterion(self,output,targets):
         """
@@ -201,6 +204,23 @@ class Trainer(trainer.GenericTrainer):
         self.model.last[0].bias.data = (model1.fc.bias.data + model2.fc.bias.data) / 2.0
 
         self.center = copy.deepcopy(self.model)
+
+    def set_model_to_middle_from_center(self):
+        distance_from_center = self.compute_distance(self.model, self.center).item()
+        with open('distance_{}_epoch_{}.txt'.format(self.args.trainer, self.args.nepochs), 'a') as distance_file:
+            distance_file.write('Task {} | Distance from center : {} , Radius : {}\n'.format(self.t, distance_from_center, self.radius))
+        ratio = 0.5
+        for module, center_module in zip(self.model.modules(), self.center.modules()):
+            if 'Conv' in str(type(module)):
+                module.weight.data = ratio * module.weight.data + (1-ratio) * center_module.weight.data
+                if module.bias is not None:
+                    module.bias.data = ratio * module.bias.data + (1-ratio) * center_module.bias.data
+            elif 'BatchNorm' in str(type(module)):
+                module.weight.data = ratio * module.weight.data + (1-ratio) * center_module.weight.data
+                module.bias.data = ratio * module.bias.data + (1-ratio) * center_module.bias.data
+                module.running_mean.data = ratio * module.running_mean.data + (1-ratio) * center_module.running_mean.data
+                module.running_var.data = ratio * module.running_var.data + (1-ratio) * center_module.running_var.data
+
     
     def set_radius(self, model1, model2):
         self.radius = self.compute_distance(model1, model2).item() / 2.0

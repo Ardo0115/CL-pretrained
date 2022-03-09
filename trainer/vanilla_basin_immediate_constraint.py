@@ -112,11 +112,14 @@ class Trainer(trainer.GenericTrainer):
             test_loss,test_acc=self.evaluator.evaluate(self.model, self.test_iterator, t, self.device)
             print(' Test: loss={:.3f}, acc={:5.1f}% |'.format(test_loss,100*test_acc),end='')
             print()
+            if self.check_out_of_basin():
+                self.constrain_to_basin()
+                break
         save_pt_name = 'from_previous_model'
         log_name = '_{}_{}_{}_{}_{}_lamb_{}_lr_{}_batch_{}_epoch_{}'.format(self.args.dataset,self.args.trainer,  save_pt_name, self.args.optimizer, self.args.seed,
                                                                            self.args.lamb, self.args.lr, self.args.batch_size, self.args.nepochs)
         torch.save(self.model.state_dict(), './trained_model/' + log_name + '_task_{}.pt'.format(t))
-        self.constrain_to_basin()
+        #self.constrain_to_basin()
 
     def criterion(self,output,targets):
         """
@@ -205,9 +208,16 @@ class Trainer(trainer.GenericTrainer):
     def set_radius(self, model1, model2):
         self.radius = self.compute_distance(model1, model2).item() / 2.0
 
+    def check_out_of_basin(self):
+        distance_from_center = self.compute_distance(self.model, self.center).item()
+        if distance_from_center > self.radius:
+            return True
+        else:
+            return False
+
     def constrain_to_basin(self):
         distance_from_center = self.compute_distance(self.model, self.center).item()
-        with open('distance.txt', 'a') as distance_file:
+        with open('distance_{}.txt'.format(self.args.trainer), 'a') as distance_file:
             distance_file.write('Task {} | Distance from center : {} , Radius : {}\n'.format(self.t, distance_from_center, self.radius))
         if distance_from_center > self.radius:
             print("\nOut of Basin!! Apply Constrain!!\n")

@@ -1,0 +1,1 @@
+Task 1 | Distance from center : 2.04317307472229 , Radius : 2.4372520446777344
