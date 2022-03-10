@@ -94,41 +94,16 @@ def main():
 
     # Get the required model
     myModel = networks.ModelFactory.get_model(args.model, task_info).to(device)
-    middle_model = networks.ModelFactory.get_model(args.model, task_info).to(device)
-    #myModel = torchvision.models.resnet18(pretrained=False)
-    #from_pretrained_to_task1 = networks.ModelFactory.get_model(args.model, task_info).to(device)
-    #far_model_task1 = networks.ModelFactory.get_model(args.model, task_info).to(device)
-    from_pretrained_to_task1 = torchvision.models.resnet18(pretrained=False)
-    num_ftrs = from_pretrained_to_task1.fc.in_features
-    myModel.fc = nn.Linear(num_ftrs, 5)
-    from_pretrained_to_task1.fc = nn.Linear(num_ftrs, 5)
-    far_model_task1 = torchvision.models.resnet18(pretrained=False)
-    far_model_task1.fc = nn.Linear(num_ftrs, 5)
-    myModel.to(device)
-    from_pretrained_to_task1.to(device)
-    far_model_task1.to(device)
 
-    from_pretrained_to_task1.load_state_dict(torch.load('./trained_model/_CIFAR100_for_Resnet_from_pretraind_SGD_0_lamb_1.0_lr_0.1_batch_256_epoch_100_task_0.pt'))
-    far_model_task1.load_state_dict(torch.load('./trained_model/_CIFAR100_for_Resnet_vanilla_basin_constraint_from_model1_SGD_0_lamb_0.1_lr_0.1_batch_256_epoch_100_task_0.pt'))
-    
-    set_model_to_middle(middle_model, from_pretrained_to_task1, far_model_task1)
     # Define the optimizer used in the experiment
 
-    myModel.last[0].weight.data = middle_model.last[0].weight.data 
-    myModel.last[0].bias.data = middle_model.last[0].bias.data
-    task_models = [middle_model]
+    task_models = []
     for task_t, _ in task_info:
-        if task_t==0:
-            continue
         task_model = networks.ModelFactory.get_model(args.model, task_info).to(device)
-        task_model.load_state_dict(torch.load('./trained_model/_CIFAR100_for_Resnet_vanilla_basin_constraint_from_pretraind_SGD_0_lamb_0.1_lr_0.1_batch_256_epoch_100_task_{}.pt'.format(task_t)))
+        task_model.load_state_dict(torch.load('./trained_model/_CIFAR100_for_Resnet_from_pretrained_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_100_task_{}.pt'.format(task_t)))
         myModel.last[task_t].weight.data = task_model.last[task_t].weight.data
         myModel.last[task_t].bias.data = task_model.last[task_t].bias.data
         task_models.append(task_model)
-
-
-
-    optimizer = torch.optim.Adam(myModel.parameters(), lr=args.lr, weight_decay=args.decay)
 
     # Initilize the evaluators used to measure the performance of the system.
     t_classifier = trainer.EvaluatorFactory.get_evaluator("trainedClassifier")
@@ -136,7 +111,6 @@ def main():
     ########################################################################################################################
 
     utils.print_model_report(myModel)
-    utils.print_optimizer_config(optimizer)
     print('-' * 100)
 
     interpolation_range = np.arange(-1, 2, 0.1)
@@ -149,18 +123,12 @@ def main():
 
         train_loader = train_dataset_loaders[t]
         test_loader = test_dataset_loaders[t]
-
+        model1 = task_models[t]
         for u in range(t+1):
             test_loader = test_dataset_loaders[u]
             test_iterator = torch.utils.data.DataLoader(test_loader, 100, shuffle=False)
-            if t==0:
-                model1 = from_pretrained_to_task1
-                model2 = far_model_task1
-            else:
-                model1 = middle_model
-                model2 = task_models[t]
-            print(f"Distance from middle to model_{t} : {compute_distance(model1, model2)}")
-            break
+            model2 = task_models[u]
+            print(f"Distance from model_{t} to model_{u} : {compute_distance(model1, model2)}")
             for i, lamb in enumerate(interpolation_range):
                 for module, model1_module, model2_module in zip(myModel.modules(), model1.modules(), model2.modules()):
                     if 'Conv' in str(type(module)):
@@ -179,10 +147,9 @@ def main():
                 acc[t, u, i] = test_acc
                 lss[t, u, i] = test_loss
 
-        continue
         for task_t, acc_loss in enumerate(zip(acc, lss)):
             acc_t, loss_t = acc_loss
-            np.savetxt('vanilla_basin_constraint_middle_model_interpolate_{}.txt'.format(task_t), acc_t, '%.4f')
+            np.savetxt('interpolate_pretrain_interpolate_from_model_{}.txt'.format(task_t), acc_t, '%.4f')
             #np.savetxt('vanilla_basin_constraint_from_pretrained_from_model1_lamb_{}_interpolate_task_{}.txt'.format(0.1, task_t), acc_t, '%.4f')
 
 

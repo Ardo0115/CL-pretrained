@@ -15,11 +15,11 @@ def get_acc(filename):
     content = target_file.readlines()
     acc = []
     for model_t, line in enumerate(content):
-        if model_t!=0:
-            continue
         t_acc = [float(i) for i in line.split(" ")]
-        #acc.append(sum(t_acc)/(t+1)*100)
-    return t_acc
+        if sum(t_acc) < 1e-6:
+            break
+        acc.append(t_acc)
+    return acc
 
 def get_bwt(filename):
     target_file = open(filename, "r")
@@ -45,7 +45,7 @@ def main():
     acc_list = {} 
     for filename in os.listdir(target_dir):
         if filename.endswith(".txt"):
-            if 'vanilla_basin_constraint_distance_lamb_0.01.txt' in filename:
+            if 'vanilla_basin_constraint_middle_model_interpolate_5.txt' in filename:
                 trainer = filename
             #elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'ewc' in filename:
             #    trainer = 'ewc_SGD'
@@ -53,14 +53,16 @@ def main():
             #    trainer = 'interpolate_pretrain_SGD'
             else:
                 continue
-            lamb = re.search('lamb_(.+?).txt', filename).group(1)
+            model_t = re.search('interpolate_(.+?).txt', filename).group(1)
             #lr = re.search('lr_(.+?)_', filename).group(1)
             acc = get_acc(os.path.join(target_dir, filename))
-            if trainer not in acc_list.keys():
-                acc_list[trainer] = (filename, acc)
-            else:
-                if acc_list[trainer][1][-1] < acc[-1]:
-                    acc_list[trainer] = (filename, acc)
+            for t, acc_t in enumerate(acc):
+                acc_list[t] = ('task_{}'.format(t), acc_t)
+            # if trainer not in acc_list.keys():
+            #     acc_list[trainer] = (filename, acc)
+            # else:
+            #     if acc_list[trainer][1][-1] < acc[-1]:
+            #         acc_list[trainer] = (filename, acc)
 
             #if acc[-1] > 65.5:
             #    acc_list.append((filename, acc))
@@ -79,15 +81,15 @@ def main():
     #acc_list.sort(key=lambda x:x[1])
 # Plot in one Figure
     if plot_type == 1:
-        title = f"Task 0 ACC(lamb : {lamb}) - Left : finetuned from pretrained, Right : Trained from model1"
+        title = f"per Task ACC - Left : Center, Right : Model {model_t}"
         plt.figure(figsize=(10,5))
         plt.title(title)
         #plt.xticks(np.arange(1,6), labels=['2', '3', '4', '5'])
         plt.xticks(np.arange(0,30,1), labels = [str(round(float(i),2)) for i in np.arange(-1,2, 0.1)])
-        plt.ylim([0,1])
+        # plt.ylim([0,1])
         #plt.xticks(np.arange(30))
         plt.xlabel("Interpolation Coefficient")
-        plt.ylabel("Acc on Task 0")
+        plt.ylabel("Acc on per Task")
 
         #for trainer, lamb, lr, acc in acc_list:
 

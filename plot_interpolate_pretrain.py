@@ -118,13 +118,12 @@ def main():
             test_loader = test_dataset_loaders[u]
             test_iterator = torch.utils.data.DataLoader(test_loader, 100, shuffle=False)
             test_model1.load_state_dict(torch.load('./trained_model/_CIFAR100_for_Resnet_from_pretrained_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_100_task_0.pt'))
-            test_model2.load_state_dict(torch.load('./trained_model/_CIFAR100_for_Resnet_from_pretrained_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_100_task_2.pt'))
+            test_model2.load_state_dict(torch.load('./trained_model/_CIFAR100_for_Resnet_from_pretrained_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_100_task_1.pt'))
             distance = compute_distance(test_model1, test_model2)
             print("Distance btw Two model : {}".format(distance))
-            sys.exit()
             for i, lamb in enumerate(interpolation_range):
                 for module, model1_module, model2_module in zip(myModel.modules(), test_model1.modules(), test_model2.modules()):
-                    if 'Conv' in str(type(module)):
+                    if 'Conv' in str(type(module)) or 'Linear' in str(type(module)):
                         module.weight.data = (lamb * model1_module.weight.data + (1-lamb) * model2_module.weight.data)
                         if module.bias is not None:
                             module.bias.data = (lamb * model1_module.bias.data + (1-lamb) * model2_module.bias.data)
@@ -143,7 +142,7 @@ def main():
         for task_t, acc_loss in enumerate(zip(acc, lss)):
             acc_t, loss_t = acc_loss
             np.savetxt('interpolate_acc_after_task_{}'.format(task_t), acc_t, '%.4f')
-        if t==0:
+        if t==1:
             break
 
 
