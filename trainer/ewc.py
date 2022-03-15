@@ -84,6 +84,9 @@ class Trainer(trainer.GenericTrainer):
             test_loss,test_acc=self.evaluator.evaluate(self.model, self.test_iterator, t, self.device)
             print(' Test: loss={:.3f}, acc={:5.1f}% |'.format(test_loss,100*test_acc),end='')
             print()
+        log_name = '_{}_{}_{}_{}_lamb_{}_lr_{}_batch_{}_epoch_{}'.format(self.args.dataset,self.args.trainer, self.args.optimizer, self.args.seed,
+                                                                           self.args.lamb, self.args.lr, self.args.batch_size, self.args.nepochs)
+        torch.save(self.model.state_dict(), './trained_model/' + log_name + '_task_{}.pt'.format(t))
 
     def criterion(self,output,targets):
         # Regularization for all previous tasks

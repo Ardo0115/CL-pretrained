@@ -92,14 +92,18 @@ def main():
             #    trainer = 'film_diag_resnet18_SGD'
             #if 'CIFAR100' in filename and 'knowledge' in filename and 'epoch_60' in filename and 'remember' not in filename:
             #    trainer = 'mas'
-            if 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'ewc' in filename:
-                trainer = 'ewc_Adam'
-            elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'ewc' in filename:
-                trainer = 'ewc_SGD'
-            # elif 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'interpolate_pretrain' in filename:
-            #     trainer = 'interpolate_pretrain_Adam'
-            elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'interpolate_pretrain' in filename:
-                trainer = 'interpolate_pretrain_SGD'
+            # if 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'ewc' in filename:
+            #     trainer = 'ewc_Adam'
+            # elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'ewc' in filename:
+            #     trainer = 'ewc_SGD'
+            # # elif 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'interpolate_pretrain' in filename:
+            # #     trainer = 'interpolate_pretrain_Adam'
+            # elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'interpolate_pretrain' in filename:
+            #     trainer = 'interpolate_pretrain_SGD'
+            if 'CIFAR100_for_Resnet' in filename and 'epoch_10.txt' in filename and 'SGD' in filename and 'vanilla_middle_from_center' in filename:
+                trainer = 'vanilla_middle_from_center_epoch10'
+            elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'vanilla_middle_from_center' in filename:
+                trainer = 'vanilla_middle_from_center_epoch100'
             # elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename:
             #     trainer = filename
            
@@ -214,7 +218,7 @@ def main():
         knowledge_list = []
         for filename, acc in acc_list_values:
             knowledge_list.append((filename, round(acc[-1],2)))
-            plt.plot(acc, 'o-', label=filename[4:-10])
+            plt.plot(acc, 'o-', label=filename[10:-1])
             plt.text(len(acc)-1, acc[-1], "acc: "+str(acc[-1]))
 
         
