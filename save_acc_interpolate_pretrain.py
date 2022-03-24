@@ -127,29 +127,31 @@ def main():
         for u in range(t+1):
             test_loader = test_dataset_loaders[u]
             test_iterator = torch.utils.data.DataLoader(test_loader, 100, shuffle=False)
-            model2 = task_models[u]
+            # model2 = task_models[u]
+            model2 = networks.ModelFactory.get_model(args.model, [(0,100)]).to(device)
+            model2.load_state_dict(torch.load('./trained_model/_CIFAR100_for_Resnet_joint_SGD_0_lamb_lr_0.1_batch_256_epoch_100_task_0.pt'))
             print(f"Distance from model_{t} to model_{u} : {compute_distance(model1, model2)}")
-            for i, lamb in enumerate(interpolation_range):
-                for module, model1_module, model2_module in zip(myModel.modules(), model1.modules(), model2.modules()):
-                    if 'Conv' in str(type(module)):
-                        module.weight.data = ((1-lamb) * model1_module.weight.data + lamb * model2_module.weight.data)
-                        if module.bias is not None:
-                            module.bias.data = ((1-lamb) * model1_module.bias.data + lamb * model2_module.bias.data)
-                    elif 'BatchNorm' in str(type(module)):
-                        module.weight.data = ((1-lamb) * model1_module.weight.data + lamb * model2_module.weight.data)
-                        module.bias.data = ((1-lamb) * model1_module.bias.data + lamb * model2_module.bias.data)
-                        module.running_mean.data = ((1-lamb) * model1_module.running_mean.data + lamb * model2_module.running_mean.data)
-                        module.running_var.data = ((1-lamb) * model1_module.running_var.data + lamb * model2_module.running_var.data)
+        #     for i, lamb in enumerate(interpolation_range):
+        #         for module, model1_module, model2_module in zip(myModel.modules(), model1.modules(), model2.modules()):
+        #             if 'Conv' in str(type(module)):
+        #                 module.weight.data = ((1-lamb) * model1_module.weight.data + lamb * model2_module.weight.data)
+        #                 if module.bias is not None:
+        #                     module.bias.data = ((1-lamb) * model1_module.bias.data + lamb * model2_module.bias.data)
+        #             elif 'BatchNorm' in str(type(module)):
+        #                 module.weight.data = ((1-lamb) * model1_module.weight.data + lamb * model2_module.weight.data)
+        #                 module.bias.data = ((1-lamb) * model1_module.bias.data + lamb * model2_module.bias.data)
+        #                 module.running_mean.data = ((1-lamb) * model1_module.running_mean.data + lamb * model2_module.running_mean.data)
+        #                 module.running_var.data = ((1-lamb) * model1_module.running_var.data + lamb * model2_module.running_var.data)
 
-                test_loss, test_acc = t_classifier.evaluate(myModel, test_iterator, u, device)
-                #test_loss, test_acc = t_classifier.one_task_evaluate(myModel, test_iterator, device)
-                print('>>> Test on task {:2d}: Interpolation Coefficient : {:.2f}, loss={:.3f}, acc={:5.1f}% <<<'.format(u,lamb,  test_loss, 100 * test_acc))
-                acc[t, u, i] = test_acc
-                lss[t, u, i] = test_loss
+        #         test_loss, test_acc = t_classifier.evaluate(myModel, test_iterator, u, device)
+        #         #test_loss, test_acc = t_classifier.one_task_evaluate(myModel, test_iterator, device)
+        #         print('>>> Test on task {:2d}: Interpolation Coefficient : {:.2f}, loss={:.3f}, acc={:5.1f}% <<<'.format(u,lamb,  test_loss, 100 * test_acc))
+        #         acc[t, u, i] = test_acc
+        #         lss[t, u, i] = test_loss
 
-        for task_t, acc_loss in enumerate(zip(acc, lss)):
-            acc_t, loss_t = acc_loss
-            np.savetxt('interpolate_pretrain_interpolate_from_model_{}.txt'.format(task_t), acc_t, '%.4f')
+        # for task_t, acc_loss in enumerate(zip(acc, lss)):
+        #     acc_t, loss_t = acc_loss
+        #     np.savetxt('interpolate_pretrain_interpolate_from_model_{}.txt'.format(task_t), acc_t, '%.4f')
             #np.savetxt('vanilla_basin_constraint_from_pretrained_from_model1_lamb_{}_interpolate_task_{}.txt'.format(0.1, task_t), acc_t, '%.4f')
 
 

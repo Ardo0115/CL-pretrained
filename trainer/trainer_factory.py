@@ -14,6 +14,8 @@ class TrainerFactory():
 
         if args.trainer == 'ewc':
             import trainer.ewc as trainer
+        elif args.trainer == 'ewc_from_random':
+            import trainer.ewc_from_random as trainer
         elif args.trainer == 'interpolate_pretrain':
             import trainer.interpolate_pretrain as trainer
         elif args.trainer == 'interpolate_random':
@@ -26,6 +28,14 @@ class TrainerFactory():
             import trainer.vanilla_basin_immediate_constraint as trainer
         elif args.trainer == 'vanilla_middle_from_center':
             import trainer.vanilla_middle_from_center as trainer
+        elif args.trainer == 'vanilla_middle_no_constraint':
+            import trainer.vanilla_middle_no_constraint as trainer
+        elif args.trainer == 'vanilla_model1_no_constraint':
+            import trainer.vanilla_model1_no_constraint as trainer
+        elif args.trainer == 'joint_multihead':
+            import trainer.joint_multihead as trainer
+        elif args.trainer == 'vanilla_model1_no_constraint_from_pretrain':
+            import trainer.vanilla_model1_no_constraint_from_pretrain as trainer
         else:
             print("Not available trainer")
             sys.exit()
