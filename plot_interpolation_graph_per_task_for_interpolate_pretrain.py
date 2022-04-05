@@ -45,7 +45,7 @@ def main():
     acc_list = {} 
     for filename in os.listdir(target_dir):
         if filename.endswith(".txt"):
-            if 'interpolate_pretrain_interpolate_from_model_19.txt' in filename:
+            if 'joint_Adam_interpolate_from_model_19.txt' in filename:
                 trainer = filename
             #elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'ewc' in filename:
             #    trainer = 'ewc_SGD'
@@ -53,7 +53,7 @@ def main():
             #    trainer = 'interpolate_pretrain_SGD'
             else:
                 continue
-            model_t = re.search('interpolate_pretrain_interpolate_from_model_(.+?).txt', filename).group(1)
+            model_t = re.search('joint_Adam_interpolate_from_model_(.+?).txt', filename).group(1)
             #lr = re.search('lr_(.+?)_', filename).group(1)
             acc = get_acc(os.path.join(target_dir, filename))
             for t, acc_t in enumerate(acc):
@@ -81,7 +81,7 @@ def main():
     #acc_list.sort(key=lambda x:x[1])
 # Plot in one Figure
     if plot_type == 1:
-        title = f"per Task ACC - Left : Model {model_t}, Right : Another model"
+        title = f"per Task ACC - Left : Joint, Right : model per task"
         plt.figure(figsize=(10,5))
         plt.title(title)
         #plt.xticks(np.arange(1,6), labels=['2', '3', '4', '5'])
