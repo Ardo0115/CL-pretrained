@@ -27,7 +27,20 @@ class Trainer(trainer.GenericTrainer):
         lr = self.args.lr
         self.setup_training(lr)
         # Do not update self.t
-        if t>0: # update fisher before start training new task
+        if t==0:
+            model1 = networks.ModelFactory.get_model(self.args.model, [(0,25), (1,25), (2,25), (3,25)]).to(self.device)
+            model1.load_state_dict(torch.load('./trained_model/_CIFAR100_vanilla_SGD_0_lr_0.1_batch_64_epoch_100_tasknum_4_task_0.pt'))
+            for module, module_pretrained in zip(self.model.modules(), model1.modules()):
+                if 'Conv' in str(type(module)):
+                    module.weight.data.copy_(module_pretrained.weight.data)
+                    if module.bias is not None: 
+                        module.bias.data.copy_(module_pretrained.bias.data)
+                elif 'BatchNorm' in str(type(module)):
+                    module.weight.data.copy_(module_pretrained.weight.data)
+                    module.bias.data.copy_(module_pretrained.bias.data)
+                    module.running_mean.copy_(module_pretrained.running_mean)
+                    module.running_var.copy_(module_pretrained.running_var)
+        else: # update fisher before start training new task
             self.update_frozen_model()
             self.update_fisher()
 

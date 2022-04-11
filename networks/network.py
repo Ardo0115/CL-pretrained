@@ -3,8 +3,10 @@ import torch.nn as nn
 import numpy as np
 import networks.piggyback_layers as nl
 import math
+from torch.nn.functional import relu, avg_pool2d
 
-
+BN_MOMENTUM=0.05
+BN_AFFINE=True
 
 class MLP_Net(torch.nn.Module):
 
@@ -46,10 +48,26 @@ def resnet18(task_info):
     """
     return ResNet(task_info, BasicBlock, [2, 2, 2, 2])
 
+def resnet18_LMC(task_info):
+    nclasses=100
+    nf=20
+    config={'dropout': 0.05}
+    net = ResNet_LMC(task_info, BasicBlock_LMC, [2, 2, 2, 2], nclasses, nf, config=config)
+    return net
+
+def resnet18_small(task_info):
+    """ return a ResNet 18 object
+    """
+    return ResNet_Small(task_info, BasicBlock_Small, [2, 2, 2, 2])
+
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     """3x3 convolution with padding"""
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
                      padding=dilation, groups=groups, bias=False, dilation=dilation)
+
+def conv3x3_LMC(in_planes, out_planes, stride=1):
+    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
+                     padding=1, bias=False)
 
 
 def conv1x1(in_planes, out_planes, stride=1):
@@ -96,6 +114,66 @@ class BasicBlock(nn.Module):
 
         return out
 
+class BasicBlock_LMC(nn.Module):
+    expansion = 1
+
+    def __init__(self, in_planes, planes, stride=1, config={}):
+        super(BasicBlock_LMC, self).__init__()
+        self.conv1 = conv3x3_LMC(in_planes, planes, stride)
+        self.bn1 = nn.BatchNorm2d(planes, affine=BN_AFFINE, track_running_stats=False, momentum=BN_MOMENTUM)
+        self.conv2 = conv3x3_LMC(planes, planes)
+        self.bn2 = nn.BatchNorm2d(planes, affine=BN_AFFINE, track_running_stats=False, momentum=BN_MOMENTUM)
+
+        self.shortcut = nn.Sequential()
+        if stride != 1 or in_planes != self.expansion * planes:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_planes, self.expansion * planes, kernel_size=1,
+                          stride=stride, bias=False),
+                nn.BatchNorm2d(self.expansion * planes, affine=False, track_running_stats=False, momentum=BN_MOMENTUM)
+            )
+
+    def forward(self, x):
+        out = relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        out += self.shortcut(x)
+        out = relu(out)
+        return out
+class BasicBlock_Small(nn.Module):
+    """Basic Block for resnet 18 and resnet 34
+
+    """
+
+    #BasicBlock and BottleNeck block
+    #have different output size
+    #we use class attribute expansion
+    #to distinct
+    expansion = 1
+
+    def __init__(self, in_channels, out_channels, stride=1):
+        super().__init__()
+
+        #residual function
+        self.residual_function = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_channels, out_channels * BasicBlock.expansion, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels * BasicBlock.expansion)
+        )
+
+        #shortcut
+        self.shortcut = nn.Sequential()
+
+        #the shortcut output dimension is not the same with residual function
+        #use 1*1 convolution to match the dimension
+        if stride != 1 or in_channels != BasicBlock.expansion * out_channels:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels * BasicBlock.expansion, kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(out_channels * BasicBlock.expansion)
+            )
+
+    def forward(self, x):
+        return nn.ReLU(inplace=True)(self.residual_function(x) + self.shortcut(x))
 
 class Bottleneck(nn.Module):
     # Bottleneck in torchvision places the stride for downsampling at 3x3 convolution(self.conv2)
@@ -247,7 +325,139 @@ class ResNet(nn.Module):
     def forward(self, x):
         return self._forward_impl(x)
 
+class ResNet_LMC(nn.Module):
+    def __init__(self, task_info, block, num_blocks, num_classes, nf, config={}):
+        super(ResNet_LMC, self).__init__()
+        self.in_planes = nf
+        self.save_acts = False
+        self.acts = {}
+        self.task_info = task_info
 
+        self.conv1 = conv3x3_LMC(3, nf * 1)
+        self.bn1 = nn.BatchNorm2d(nf * 1, affine=BN_AFFINE, track_running_stats=False, momentum=BN_MOMENTUM)
+        self.layer1 = self._make_layer(block, nf * 1, num_blocks[0], stride=1, config=config)
+        self.layer2 = self._make_layer(block, nf * 2, num_blocks[1], stride=2, config=config)
+        self.layer3 = self._make_layer(block, nf * 4, num_blocks[2], stride=2, config=config)
+        self.layer4 = self._make_layer(block, nf * 8, num_blocks[3], stride=2, config=config)
+        # self.linear = nn.Linear(nf * 8 * block.expansion, num_classes)
+        self.last = torch.nn.ModuleList()
+        for t, n in self.task_info:
+            self.last.append(torch.nn.Linear(nf * 8 * block.expansion, n))
+
+    def _make_layer(self, block, planes, num_blocks, stride, config):
+        strides = [stride] + [1] * (num_blocks - 1)
+        layers = []
+        for stride in strides:
+            layers.append(block(self.in_planes, planes, stride, config=config))
+            self.in_planes = planes * block.expansion
+        return nn.Sequential(*layers)
+
+    def forward(self, x):
+        bsz = x.size(0)
+        out = relu(self.bn1(self.conv1(x.view(bsz, 3, 32, 32))))
+        out = self.layer1(out)
+        if self.save_acts:
+            self.acts['block 1'] = out.detach().clone()
+
+        out = self.layer2(out)
+        if self.save_acts:
+            self.acts['block 2'] = out.detach().clone()
+
+        out = self.layer3(out)
+        if self.save_acts:
+            self.acts['block 3'] = out.detach().clone()
+
+        out = self.layer4(out)
+        if self.save_acts:
+            self.acts['block 4'] = out.detach().clone()
+
+        out = avg_pool2d(out, 4)
+        out = out.view(out.size(0), -1)
+        y = []
+        for t, _ in self.task_info:
+            y.append(self.last[t](out))
+        return y
+class ResNet_Small(nn.Module):
+
+    def __init__(self, task_info, block, num_block, num_classes=100, init_weights=True):
+        super().__init__()
+        nf = 20
+        self.in_channels = nf
+        self.task_info = task_info
+
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(3, nf, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(nf),
+            nn.ReLU(inplace=True))
+        #we use a different inputsize than the original paper
+        #so conv2_x's stride is 1
+        self.conv2_x = self._make_layer(block, nf, num_block[0], 1)
+        self.conv3_x = self._make_layer(block, nf * 2, num_block[1], 2)
+        self.conv4_x = self._make_layer(block, nf * 4, num_block[2], 2)
+        self.conv5_x = self._make_layer(block, nf * 8, num_block[3], 2)
+        self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
+        self.last = torch.nn.ModuleList()
+
+        for t,n in self.task_info:
+            self.last.append(torch.nn.Linear(nf * 8 * block.expansion, n))
+
+        # weights initialization
+        if init_weights:
+            self._initialize_weights()
+
+
+    def _make_layer(self, block, out_channels, num_blocks, stride):
+        """make resnet layers(by layer i didnt mean this 'layer' was the
+        same as a neuron netowork layer, ex. conv layer), one layer may
+        contain more than one residual block
+
+        Args:
+            block: block type, basic block or bottle neck block
+            out_channels: output depth channel number of this layer
+            num_blocks: how many blocks per layer
+            stride: the stride of the first block of this layer
+
+        Return:
+            return a resnet layer
+        """
+
+        # we have num_block blocks per layer, the first block
+        # could be 1 or 2, other blocks would always be 1
+        strides = [stride] + [1] * (num_blocks - 1)
+        layers = []
+        for stride in strides:
+            layers.append(block(self.in_channels, out_channels, stride))
+            self.in_channels = out_channels * block.expansion
+
+        return nn.Sequential(*layers)
+
+    def forward(self, x):
+        output = self.conv1(x)
+        output = self.conv2_x(output)
+        output = self.conv3_x(output)
+        output = self.conv4_x(output)
+        output = self.conv5_x(output)
+        output = self.avg_pool(output)
+        output = output.view(output.size(0), -1)
+        y = []
+        for t,_ in self.task_info:
+            y.append(self.last[t](output))
+
+        return y
+
+    # define weight initialization function
+    def _initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.normal_(m.weight, 0, 0.01)
+                nn.init.constant_(m.bias, 0)
 def _resnet(task_info, block, layers, **kwargs):
     model = ResNet(task_info, block, layers, **kwargs)
     return model
@@ -263,3 +473,5 @@ def resnet18(task_info, **kwargs):
     """
     return _resnet(task_info, BasicBlock, [2, 2, 2, 2],
                    **kwargs)
+
+

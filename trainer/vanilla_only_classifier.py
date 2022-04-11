@@ -13,7 +13,7 @@ from tqdm import tqdm
 import trainer
 
 import networks
-
+import torchvision
 class Trainer(trainer.GenericTrainer):
     def __init__(self, model, args, optimizer, evaluator, taskcla):
         super().__init__(model, args, optimizer, evaluator, taskcla)
@@ -22,15 +22,33 @@ class Trainer(trainer.GenericTrainer):
 
 
     def train(self, train_loader, test_loader, t, device = None):
-
+        
         self.device = device
         lr = self.args.lr
         self.setup_training(lr)
+        for n,p in self.model.named_parameters():
+            if 'last' not in n:
+                p.requires_grad = False
         # Do not update self.t
         if t>0: # update fisher before start training new task
             self.update_frozen_model()
             self.update_fisher()
-
+        tmp_model = torchvision.models.resnet18(pretrained=True)
+        for module, module_pretrained in zip(self.model.modules(), tmp_model.modules()):
+            if 'Conv' in str(type(module)):
+                module.weight.data.copy_(module_pretrained.weight.data)
+                if module.bias is not None:
+                    module.bias.data.copy_(module_pretrained.weight.data)
+            elif 'BatchNorm' in str(type(module)):
+                module.weight.data.copy_(module_pretrained.weight.data)
+                module.bias.data.copy_(module_pretrained.bias.data)
+                module.running_mean.copy_(module_pretrained.running_mean)
+                module.running_var.copy_(module_pretrained.running_var)
+        if self.args.optimizer == 'Adam':
+            self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.current_lr)
+        elif self.args.optimizer == 'SGD':
+            self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.current_lr)
+        
         # Now, you can update self.t
         self.t = t
 

@@ -36,6 +36,12 @@ class TrainerFactory():
             import trainer.joint_multihead as trainer
         elif args.trainer == 'vanilla_model1_no_constraint_from_pretrain':
             import trainer.vanilla_model1_no_constraint_from_pretrain as trainer
+        elif args.trainer == 'vanilla':
+            import trainer.vanilla as trainer
+        elif args.trainer == 'vanilla_from_task1':
+            import trainer.vanilla_from_task1 as trainer
+        elif args.trainer == 'vanilla_only_classifier':
+            import trainer.vanilla_only_classifier as trainer
         else:
             print("Not available trainer")
             sys.exit()

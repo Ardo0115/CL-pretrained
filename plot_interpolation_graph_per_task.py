@@ -45,7 +45,7 @@ def main():
     acc_list = {} 
     for filename in os.listdir(target_dir):
         if filename.endswith(".txt"):
-            if 'vanilla_basin_constraint_middle_model_interpolate_5.txt' in filename:
+            if 'interpolate_LMC_from_initial_1.txt' in filename:
                 trainer = filename
             #elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'ewc' in filename:
             #    trainer = 'ewc_SGD'
