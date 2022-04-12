@@ -94,8 +94,8 @@ def main():
             #    trainer = 'mas'
             if 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'ewc' in filename:
                 trainer = 'ewc_Adam'
-            elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'ewc' in filename:
-                trainer = 'ewc_SGD'
+            #elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'ewc' in filename:
+            #    trainer = 'ewc_SGD'
             # elif 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'interpolate_pretrain' in filename:
             #     trainer = 'interpolate_pretrain_Adam'
             elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'interpolate_pretrain' in filename:
@@ -104,10 +104,18 @@ def main():
             #     trainer = 'vanilla_middle_from_center_epoch10'
             # elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'vanilla_middle_from_center' in filename:
             #     trainer = 'vanilla_middle_from_center_epoch100'
-            elif 'CIFAR100_for_Resnet' in filename and 'epoch_10.txt' in filename and 'SGD' in filename and 'vanilla_model1_no_constraint' in filename:
-                trainer = 'vanilla_model1_no_constraint_epoch10'
-            elif 'CIFAR100_for_Resnet' in filename and 'epoch_10' in filename and 'SGD' in filename and 'vanilla_middle_no_constraint' in filename:
-                trainer = 'vanilla_middle_no_constraint_epoch10'
+            #elif 'CIFAR100_for_Resnet' in filename and 'epoch_10.txt' in filename and 'SGD' in filename and 'vanilla_model1_no_constraint' in filename:
+            #    trainer = 'vanilla_model1_no_constraint_epoch10'
+            #elif 'CIFAR100_for_Resnet' in filename and 'epoch_10' in filename and 'SGD' in filename and 'vanilla_middle_no_constraint' in filename:
+            #    trainer = 'vanilla_middle_no_constraint_epoch10'
+           
+            elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'vanilla_only_classifier_evalmode' in filename:
+                trainer = 'vanilla_only_classifier_evalmode_SGD'
+            #elif 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'vanilla_only_classifier_evalmode' in filename:
+            #    trainer = 'vanilla_only_classifier_evalmode_Adam'
+            
+            elif 'CIFAR100_for_Resnet' in filename and 'epoch_10' in filename and 'Adam' in filename and 'joint_multihead' in filename:
+                trainer = 'joint_multihead'
             # elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename:
             #     trainer = filename
            
@@ -174,7 +182,7 @@ def main():
 
             #else:
             #    continue
-            lamb = re.search('lamb_(.+?)_', filename).group(1)
+            #lamb = re.search('lamb_(.+?)_', filename).group(1)
             lr = re.search('lr_(.+?)_', filename).group(1)
             acc = get_acc(os.path.join(target_dir, filename))
             if trainer not in acc_list.keys():
@@ -227,7 +235,8 @@ def main():
             plt.text(len(acc)-1, acc[-1], "acc: "+str(acc[-1]))
 
         
-        plt.legend(loc='upper right')
+        #plt.legend(loc='upper right')
+        plt.legend()
         plt.grid()
         plt.savefig(sys.argv[3])
         # print("knowledge diff : {}".format(sum(np.array(knowledge_list[0])-np.array(knowledge_list[1]))))
