@@ -42,6 +42,8 @@ class TrainerFactory():
             import trainer.vanilla_from_task1 as trainer
         elif args.trainer == 'vanilla_only_classifier':
             import trainer.vanilla_only_classifier as trainer
+        elif args.trainer == 'vanilla_only_classifier_evalmode':
+            import trainer.vanilla_only_classifier_evalmode as trainer
         else:
             print("Not available trainer")
             sys.exit()
