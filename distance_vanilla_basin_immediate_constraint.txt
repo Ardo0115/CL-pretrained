@@ -1,5 +1,0 @@
-Task 2 | Distance from center : 2.7660441398620605 , Radius : 2.4372520446777344
-Task 3 | Distance from center : 3.82305908203125 , Radius : 2.4372520446777344
-Task 2 | Distance from center : 2.7660441398620605 , Radius : 2.4372520446777344
-Task 3 | Distance from center : 3.82305908203125 , Radius : 2.4372520446777344
-Task 4 | Distance from center : 6.063088893890381 , Radius : 2.4372520446777344
