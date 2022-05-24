@@ -47,7 +47,7 @@ class Trainer(trainer.GenericTrainer):
                 data, target = data.to(device), target.to(device)
                 batch_size = data.shape[0]
 
-                output = self.model(data)[t]
+                output = self.model(data,t)
                 loss_CE = self.criterion(output,target)
 
 

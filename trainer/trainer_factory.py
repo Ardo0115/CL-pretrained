@@ -46,6 +46,8 @@ class TrainerFactory():
             import trainer.vanilla_only_classifier_evalmode as trainer
         elif args.trainer == 'interpolate_pretrain_fix_bn':
             import trainer.interpolate_pretrain_fix_bn as trainer
+        elif args.trainer == 'mc_sgd':
+            import trainer.mc_sgd as trainer
         else:
             print("Not available trainer")
             sys.exit()

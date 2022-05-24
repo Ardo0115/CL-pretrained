@@ -27,7 +27,7 @@ def get_args():
                         help='(default=%(default)s)')
 
     parser.add_argument('--trainer', default='ewc', type=str,
-                        choices=['vanilla', 'vanilla_from_task1', 'vanilla_only_classifier', 'vanilla_only_classifier_evalmode', 'ewc','interpolate_pretrain', 'interpolate_random', 'interpolate_pretrain_fix_var', 'vanilla_basin_constraint', 'vanilla_basin_immediate_constraint', 'vanilla_middle_from_center', 'vanilla_middle_no_constraint', 'vanilla_model1_no_constraint', 'ewc_from_random', 'joint_multihead', 'vanilla_model1_no_constraint_from_pretrain', 'interpolate_pretrain_fix_bn'],
+                        choices=['mc_sgd', 'vanilla', 'vanilla_from_task1', 'vanilla_only_classifier', 'vanilla_only_classifier_evalmode', 'ewc','interpolate_pretrain', 'interpolate_random', 'interpolate_pretrain_fix_var', 'vanilla_basin_constraint', 'vanilla_basin_immediate_constraint', 'vanilla_middle_from_center', 'vanilla_middle_no_constraint', 'vanilla_model1_no_constraint', 'ewc_from_random', 'joint_multihead', 'vanilla_model1_no_constraint_from_pretrain', 'interpolate_pretrain_fix_bn'],
                         help='(default=%(default)s)')
     parser.add_argument('--model', default='resnet18',type=str,
                         choices=['resnet18','MLP', 'resnet18_LMC', 'resnet18_small'],
@@ -39,6 +39,8 @@ def get_args():
                         help='Choose how much to tilt the gradient from [0.0, 10.0], 0.0:no tilting, 10.0:orthogonal')
     parser.add_argument('--knowledge-ratio', default='1.0', type=float,
                         help='Choose how much to use for CIFAR10 dataset')
+    parser.add_argument('--memory-size', type=int, default=100, help='Size of memory for MC-SGD')
+    parser.add_argument('--line-samples', type=int, default=5, help='Number of samples for integral')
 
     args = parser.parse_args()
     return args

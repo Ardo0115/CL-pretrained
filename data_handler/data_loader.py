@@ -52,7 +52,7 @@ def make_ContinualLoaders(data, labels, task_info, transform=None, shuffle_idx=N
             end_idx = data.shape[0]
         
         loaders.append(Loader(data[start_idx:end_idx], 
-                                    labels[start_idx:end_idx]%ncla, 
+                                    labels[start_idx:end_idx], 
                                     transform=transform, 
                                     data_dict=data_dict))
         

@@ -259,9 +259,11 @@ class ResNet(nn.Module):
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2,
                                        dilate=replace_stride_with_dilation[2])
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.last = torch.nn.ModuleList()
-        for t, n in self.task_info:
-            self.last.append(torch.nn.Linear(512 * block.expansion, n))
+        nclasses = sum([n for _, n in self.task_info])
+        self.last = torch.nn.Linear(512 * block.expansion, nclasses)
+        # self.last = torch.nn.ModuleList()
+        # for t, n in self.task_info:
+        #     self.last.append(torch.nn.Linear(512 * block.expansion, n))
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
@@ -303,7 +305,7 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def _forward_impl(self, x):
+    def _forward_impl(self, x, task_id):
         # See note [TorchScript super()]
         x = self.conv1(x)
         x = self.bn1(x)
@@ -317,13 +319,19 @@ class ResNet(nn.Module):
 
         x = self.avgpool(x)
         x = torch.flatten(x, 1)
-        y = []
-        for t, _ in self.task_info:
-            y.append(self.last[t](x))
-        return y
+        out = self.last(x)
+        nclasses = sum([n for _, n in self.task_info])
+        nclasses_per_task = nclasses // (self.task_info[-1][0]+1)
+        offset1 = int((task_id) * nclasses_per_task)
+        offset2 = int((task_id+1) * nclasses_per_task)
+        if offset1 > 0:
+            out[:, :offset1].data.fill_(-10e10)
+        if offset2 < nclasses:
+            out[:, offset2:nclasses].data.fill_(-10e10)
+        return out
 
-    def forward(self, x):
-        return self._forward_impl(x)
+    def forward(self, x, task_id):
+        return self._forward_impl(x, task_id)
 
 class ResNet_LMC(nn.Module):
     def __init__(self, task_info, block, num_blocks, num_classes, nf, config={}):

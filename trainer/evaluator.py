@@ -46,7 +46,7 @@ class softmax_evaluator():
                 elif args.trainer == 'film_remember' or args.trainer == 'film_remember_freeze' or args.trainer == 'film_remember_wo_batchnorm' or args.trainer == 'film_remember_freeze_wo_batchnorm':
                     output = model(data, t)[t]
                 else:
-                    output = model(data)[t]
+                    output = model(data, t)
                 loss=self.ce(output,target)
                 # output shape : (batch_size, num_of_classes)
                 # output.max(1) : (max_val, max_index)

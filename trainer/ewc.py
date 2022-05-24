@@ -69,7 +69,7 @@ class Trainer(trainer.GenericTrainer):
                 data, target = data.to(device), target.to(device)
                 batch_size = data.shape[0]
 
-                output = self.model(data)[t]
+                output = self.model(data,t)
                 loss_CE = self.criterion(output,target)
 
                 self.optimizer.zero_grad()
@@ -114,8 +114,8 @@ class Trainer(trainer.GenericTrainer):
 
             # Forward and backward
             self.model.zero_grad()
-            outputs = self.model.forward(data)[self.t]
-            loss=self.criterion(outputs, target)
+            outputs = self.model.forward(data, self.t)
+            loss=criterion(outputs, target)
             loss.backward()
 
             # Get gradients

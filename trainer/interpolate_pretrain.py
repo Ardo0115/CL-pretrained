@@ -65,7 +65,7 @@ class Trainer(trainer.GenericTrainer):
                 data, target = data.to(device), target.to(device)
                 batch_size = data.shape[0]
 
-                output = self.model(data)[t]
+                output = self.model(data, t)
                 loss_CE = self.criterion(output,target)
 
                 self.optimizer.zero_grad()
@@ -80,7 +80,7 @@ class Trainer(trainer.GenericTrainer):
             test_loss,test_acc=self.evaluator.evaluate(self.model, self.test_iterator, t, self.device)
             print(' Test: loss={:.3f}, acc={:5.1f}% |'.format(test_loss,100*test_acc),end='')
             print()
-        log_name = '{}_{}_{}_{}_{}_{}_lamb_{}_lr_{}_batch_{}_epoch_{}'.format(self.args.date, self.args.dataset, 'from_pretrained', self.args.model, self.args.optimizer, self.args.seed,self.args.lamb, self.args.lr, self.args.batch_size, self.args.nepochs)
+        log_name = '{}_{}_{}_{}_{}_{}_lamb_{}_lr_{}_batch_{}_epoch_{}_tasknum_{}'.format(self.args.date, self.args.dataset, 'from_pretrained', self.args.model, self.args.optimizer, self.args.seed,self.args.lamb, self.args.lr, self.args.batch_size, self.args.nepochs, self.args.tasknum)
         torch.save(self.model.state_dict(), './trained_model/' + log_name + '_task_{}.pt'.format(t))
         if self.t > 0:
             for module, module_old in zip(self.model.modules(), self.model_fixed.modules()):
