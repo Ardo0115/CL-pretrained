@@ -48,6 +48,8 @@ class TrainerFactory():
             import trainer.interpolate_pretrain_fix_bn as trainer
         elif args.trainer == 'mc_sgd':
             import trainer.mc_sgd as trainer
+        elif args.trainer == 'mc_sgd_from_pretrain':
+            import trainer.mc_sgd_from_pretrain as trainer
         else:
             print("Not available trainer")
             sys.exit()

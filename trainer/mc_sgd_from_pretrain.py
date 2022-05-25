@@ -37,6 +37,18 @@ class Trainer(trainer.GenericTrainer):
         # Do not update self.t
         if t > 0:
             self.update_frozen_model()
+        if t ==0:
+            pretrained_model = torchvision.models.resnet18(pretrained=True)
+            for module, module_pretrained in zip(self.model.modules(), pretrained_model.modules()):
+                if 'Conv' in str(type(module)):
+                    module.weight.data.copy_(module_pretrained.weight.data)
+                    if module.bias is not None:
+                        module.bias.data.copy_(module_pretrained.weight.data)
+                elif 'BatchNorm' in str(type(module)):
+                    module.weight.data.copy_(module_pretrained.weight.data)
+                    module.bias.data.copy_(module_pretrained.bias.data)
+                    module.running_mean.copy_(module_pretrained.running_mean)
+                    module.running_var.copy_(module_pretrained.running_var)
 
         if self.args.optimizer == 'Adam':
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.current_lr)

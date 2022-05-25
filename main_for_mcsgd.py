@@ -22,8 +22,8 @@ def main():
 
     #########################################################################################################################
 
-    log_name = '{}_{}_{}_{}_{}_{}_lamb_{}_lr_{}_batch_{}_epoch_{}_tuningepochs_{}_linesamples_{}_tasknum_{}'.format(args.date, args.dataset, args.trainer, args.model, args.optimizer, args.seed,
-                                                                           args.lamb, args.lr, args.batch_size, args.nepochs, args.tuning_epochs, args.line_samples, args.tasknum)
+    log_name = '{}_{}_{}_{}_{}_{}_lamb_{}_lr_{}_batch_{}_epoch_{}_tuningepochs_{}_linesamples_{}_tasknum_{}_mem_{}'.format(args.date, args.dataset, args.trainer, args.model, args.optimizer, args.seed,
+                                                                           args.lamb, args.lr, args.batch_size, args.nepochs, args.tuning_epochs, args.line_samples, args.tasknum, args.memory_size)
 
     if args.output == '':
         args.output = './result_data/' + log_name + '.txt'
@@ -110,7 +110,7 @@ def main():
         train_loader = train_dataset_loaders[t]
         test_loader = test_dataset_loaders[t]
 
-        myTrainer.train(train_loader, test_loader, t, device)
+        myTrainer.train(train_dataset_loaders, test_dataset_loaders, t, device)
 
 
         for u in range(t+1):
