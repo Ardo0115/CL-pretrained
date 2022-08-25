@@ -92,68 +92,68 @@ def main():
             #    trainer = 'film_diag_resnet18_SGD'
             #if 'CIFAR100' in filename and 'knowledge' in filename and 'epoch_60' in filename and 'remember' not in filename:
             #    trainer = 'mas'
-            if 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'ewc' in filename:
-                trainer = 'ewc_Adam'
-            #elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'ewc' in filename:
-            #    trainer = 'ewc_SGD'
-            # elif 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'interpolate_pretrain' in filename:
-            #     trainer = 'interpolate_pretrain_Adam'
-            elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'interpolate_pretrain' in filename:
-                trainer = 'interpolate_pretrain_SGD'
-            # elif 'CIFAR100_for_Resnet' in filename and 'epoch_10.txt' in filename and 'SGD' in filename and 'vanilla_middle_from_center' in filename:
-            #     trainer = 'vanilla_middle_from_center_epoch10'
-            # elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'vanilla_middle_from_center' in filename:
-            #     trainer = 'vanilla_middle_from_center_epoch100'
-            #elif 'CIFAR100_for_Resnet' in filename and 'epoch_10.txt' in filename and 'SGD' in filename and 'vanilla_model1_no_constraint' in filename:
-            #    trainer = 'vanilla_model1_no_constraint_epoch10'
-            #elif 'CIFAR100_for_Resnet' in filename and 'epoch_10' in filename and 'SGD' in filename and 'vanilla_middle_no_constraint' in filename:
-            #    trainer = 'vanilla_middle_no_constraint_epoch10'
+            # if 'CIFAR100_for_Resnet' in filename and 'epoch_20' in filename and 'SGD' in filename and 'ewc' in filename:
+            #     trainer = 'ewc_Adam'
+            # #elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'ewc' in filename:
+            # #    trainer = 'ewc_SGD'
+            # # elif 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'interpolate_pretrain' in filename:
+            # #     trainer = 'interpolate_pretrain_Adam'
+            # elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'interpolate_pretrain' in filename:
+            #     trainer = 'interpolate_pretrain_SGD'
+            # # elif 'CIFAR100_for_Resnet' in filename and 'epoch_10.txt' in filename and 'SGD' in filename and 'vanilla_middle_from_center' in filename:
+            # #     trainer = 'vanilla_middle_from_center_epoch10'
+            # # elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'vanilla_middle_from_center' in filename:
+            # #     trainer = 'vanilla_middle_from_center_epoch100'
+            # #elif 'CIFAR100_for_Resnet' in filename and 'epoch_10.txt' in filename and 'SGD' in filename and 'vanilla_model1_no_constraint' in filename:
+            # #    trainer = 'vanilla_model1_no_constraint_epoch10'
+            # #elif 'CIFAR100_for_Resnet' in filename and 'epoch_10' in filename and 'SGD' in filename and 'vanilla_middle_no_constraint' in filename:
+            # #    trainer = 'vanilla_middle_no_constraint_epoch10'
            
-            elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'vanilla_only_classifier_evalmode' in filename:
-                trainer = 'vanilla_only_classifier_evalmode_SGD'
-            #elif 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'vanilla_only_classifier_evalmode' in filename:
-            #    trainer = 'vanilla_only_classifier_evalmode_Adam'
+            # elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename and 'SGD' in filename and 'vanilla_only_classifier_evalmode' in filename:
+            #     trainer = 'vanilla_only_classifier_evalmode_SGD'
+            # #elif 'CIFAR100_for_Resnet' in filename and 'epoch_60' in filename and 'Adam' in filename and 'vanilla_only_classifier_evalmode' in filename:
+            # #    trainer = 'vanilla_only_classifier_evalmode_Adam'
             
-            elif 'CIFAR100_for_Resnet' in filename and 'epoch_10' in filename and 'Adam' in filename and 'joint_multihead' in filename:
-                trainer = 'joint_multihead'
+            # elif 'CIFAR100_for_Resnet' in filename and 'epoch_10' in filename and 'Adam' in filename and 'joint_multihead' in filename:
+            #     trainer = 'joint_multihead'
             # elif 'CIFAR100_for_Resnet' in filename and 'epoch_100' in filename:
             #     trainer = filename
+
+
+
+            # if '_CIFAR100_for_Resnet_averaging_from_previous_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tasknum_20.txt' in filename:
+            #     trainer = '_CIFAR100_for_Resnet_averaging_from_previous_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tasknum_20.txt'
+            # elif '_CIFAR100_for_Resnet_interpolate_pretrain_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tasknum_20.txt' in filename:
+            #     trainer = '_CIFAR100_for_Resnet_interpolate_pretrain_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tasknum_20.txt'
+            # if '_CIFAR100_for_Resnet_mc_sgd_from_pretrain_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_0_linesamples_5_tasknum_20_mem_100.txt' in filename:
+            #     trainer = '_CIFAR100_for_Resnet_mc_sgd_from_pretrain_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_0_linesamples_5_tasknum_20_mem_100.txt'
+            # elif '_CIFAR100_for_Resnet_mc_sgd_from_pretrain_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_0_tasknum_20_mem_1000.txt' in filename:
+            #     trainer = '_CIFAR100_for_Resnet_mc_sgd_from_pretrain_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_0_tasknum_20_mem_1000.txt'
+            # elif '_CIFAR100_for_Resnet_mc_sgd_from_pretrain_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_0_tasknum_20_mem_100.txt' in filename:
+            #     trainer = '_CIFAR100_for_Resnet_mc_sgd_from_pretrain_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_0_tasknum_20_mem_100.txt'
+            # elif '_CIFAR100_for_Resnet_mc_sgd_from_pretrain_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_5_tasknum_20_mem_1000.txt' in filename:
+            #     trainer = '_CIFAR100_for_Resnet_mc_sgd_from_pretrain_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_5_tasknum_20_mem_1000.txt'
+            # elif '_CIFAR100_for_Resnet_mc_sgd_from_pretrain_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_5_tasknum_20_mem_100.txt' in filename:
+            #     trainer = '_CIFAR100_for_Resnet_mc_sgd_from_pretrain_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_5_tasknum_20_mem_100.txt'
+            # elif '_CIFAR100_for_Resnet_vanilla_only_classifier_evalmode_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tasknum_20.txt' in filename:
+            #     trainer = '_CIFAR100_for_Resnet_vanilla_only_classifier_evalmode_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tasknum_20.txt'
+            # elif '_CIFAR100_for_Resnet_vanilla_only_classifier_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tasknum_20.txt' in filename:
+            #     trainer = '_CIFAR100_for_Resnet_vanilla_only_classifier_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tasknum_20.txt'
+            # elif '_CIFAR100_for_Resnet_vanilla_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_10_linesamples_5_tasknum_20.txt' in filename:
+            #     trainer = '_CIFAR100_for_Resnet_vanilla_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_10_linesamples_5_tasknum_20.txt'
+
+
+
+            if '_CIFAR100_for_Resnet_mc_sgd_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_0_tasknum_20_mem_1000.txt' in filename:
+                trainer = '_CIFAR100_for_Resnet_mc_sgd_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_0_tasknum_20_mem_1000.txt'
+            elif '_CIFAR100_for_Resnet_mc_sgd_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_5_tasknum_20_mem_1000.txt' in filename:
+                trainer = '_CIFAR100_for_Resnet_mc_sgd_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_5_tasknum_20_mem_1000.txt'
+            elif '_CIFAR100_for_Resnet_mc_sgd_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_5_tasknum_20.txt' in filename:
+                trainer = '_CIFAR100_for_Resnet_mc_sgd_resnet18_SGD_0_lamb_0_lr_0.1_batch_256_epoch_20_tuningepochs_5_linesamples_5_tasknum_20.txt'
+
            
             
-            # elif 'CIFAR100' in filename and 'knowledge_0.9' in filename and 'epoch_60' in filename:
-            #     trainer = filename
-
-            # if 'ewc_resnet18_Adam_0_knowledge_0.1' in filename:
-            #     trainer = 'ewc_resnet18_Adam_knowledge_0.1'
-            # elif 'ewc_resnet18_Adam_remember_pretrain_0_knowledge_0.1' in filename:
-            #     trainer = 'ewc_resnet18_Adam_remember_pretrain_knowledge_0.1'
-            # elif 'ewc_resnet18_Adam_0_knowledge_0.2' in filename:
-            #     trainer = 'ewc_resnet18_Adam_knowledge_0.2'
-            # elif 'ewc_resnet18_Adam_remember_pretrain_0_knowledge_0.2' in filename:
-            #     trainer = 'ewc_resnet18_Adam_remember_pretrain_knowledge_0.2'
-
-
-            # elif 'ewc_resnet18_Adam_fixed_bn_0' in filename:
-            #     trainer = 'ewc_resnet18_Adam_fixed_bn'
-            #if 'CIFAR100_film_resnet18_Adam_0' in filename:
-            #    trainer = 'film_resnet18_Adam'
-            #elif 'film_diag_resnet18_Adam_0' in filename:
-            #    trainer = 'film_diag_resnet18_Adam'
-            #elif 'film_resnet18_Adam_indep_0' in filename:
-            #    trainer = 'film_resnet18_Adam_indep'
-            #elif 'only_train_last_resnet18_Adam_0' in filename:
-            #    trainer = 'only_train_last'
-            #elif 'film_resnet18_SGD_indep_0':
-            #    trainer = 'film_resnet18_SGD_indep'
-
-            #if 'ewc' in filename:
-            #    trainer = 'ewc'
-            #if 'CIFAR100_film_vgg16_0' in filename:
-            #    trainer = 'film_vgg16'
-            #elif 'film_diag_vgg16_0' in filename:
-            #    trainer = 'film_diag_vgg16'
-            #elif 'film_indep_vgg16_0' in filename:
-            #    trainer = 'film_indep_vgg16'
+            
             else:
                 continue
 
@@ -235,8 +235,8 @@ def main():
             plt.text(len(acc)-1, acc[-1], "acc: "+str(acc[-1]))
 
         
-        #plt.legend(loc='upper right')
-        plt.legend()
+        plt.legend(loc='lower right')
+        # plt.legend()
         plt.grid()
         plt.savefig(sys.argv[3])
         # print("knowledge diff : {}".format(sum(np.array(knowledge_list[0])-np.array(knowledge_list[1]))))

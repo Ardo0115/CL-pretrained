@@ -50,6 +50,10 @@ class TrainerFactory():
             import trainer.mc_sgd as trainer
         elif args.trainer == 'mc_sgd_from_pretrain':
             import trainer.mc_sgd_from_pretrain as trainer
+        elif args.trainer == 'averaging_from_previous':
+            import trainer.averaging_from_previous as trainer
+        elif args.trainer == 'half_interpolate_pretrain':
+            import trainer.half_interpolate_pretrain as trainer
         else:
             print("Not available trainer")
             sys.exit()
